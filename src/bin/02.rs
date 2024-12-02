@@ -5,14 +5,28 @@ advent_of_code::solution!(2);
 
 pub fn part_one(input: &str) -> Option<u32> {
     let p = parser!(lines(repeat_sep(i32, " ")));
-    let mut count = 0u32;
-    for line in p.parse(input).unwrap() {
-        if is_safe(&line) {
-            count += 1;
-        }
-    }
+    let Ok(lines) = p.parse(input) else {return None};
 
-    Some(count)
+    Some(lines.iter().map(|line| is_safe(line) as u32).sum())
+}
+
+pub fn part_two(input: &str) -> Option<u32> {
+    let p = parser!(lines(repeat_sep(i32, " ")));
+    let Ok(lines) = p.parse(input) else {return None};
+
+    Some(lines.iter().map(|line| {
+        if is_safe(line) {
+            1
+        } else {
+            if (1..=line.len()).any(|i| {
+                let dampened = [&line[0..i-1], &line[i..]].concat();
+                is_safe(&dampened)
+                }
+            ) {1}
+            else {0}
+        }
+    }).sum())
+
 }
 
 fn is_safe(line: &Vec<i32>) -> bool {
@@ -24,27 +38,6 @@ fn is_safe(line: &Vec<i32>) -> bool {
     }
     if delta.iter().any(|&x| x.abs()<1 || x.abs()>3) {return false};
     true
-}
-
-pub fn part_two(input: &str) -> Option<u32> {
-    let p = parser!(lines(repeat_sep(i32, " ")));
-    let mut count = 0u32;
-    for line in p.parse(input).unwrap() {
-        if is_safe(&line) {
-            count += 1;
-            continue;
-        }
-        for i in 1..line.len()+1 {
-            let dampener = [&line[0..i-1], &line[i..]].concat();
-            if is_safe(&dampener) {
-                count += 1;
-                break;
-            }
-        }
-    }
-
-    Some(count)
-
 }
 
 #[cfg(test)]
