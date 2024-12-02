@@ -3,41 +3,38 @@ use itertools::Itertools;
 
 advent_of_code::solution!(2);
 
-pub fn part_one(input: &str) -> Option<u32> {
+pub fn part_one(input: &str) -> Option<usize> {
     let p = parser!(lines(repeat_sep(i32, " ")));
-    let Ok(lines) = p.parse(input) else {return None};
+    let Ok(lines) = p.parse(input) else {
+        return None;
+    };
 
-    Some(lines.iter().map(|line| is_safe(line) as u32).sum())
+    Some(lines.iter().filter(|line| is_safe(line)).count())
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<usize> {
     let p = parser!(lines(repeat_sep(i32, " ")));
-    let Ok(lines) = p.parse(input) else {return None};
+    let Ok(lines) = p.parse(input) else {
+        return None;
+    };
 
-    Some(lines.iter().map(|line| {
-        if is_safe(line) {
-            1
-        } else {
-            if (1..=line.len()).any(|i| {
-                let dampened = [&line[0..i-1], &line[i..]].concat();
-                is_safe(&dampened)
-                }
-            ) {1}
-            else {0}
-        }
-    }).sum())
-
+    Some(
+        lines
+            .iter()
+            .filter(|&line| {
+                (1..=line.len()).any(|i| {
+                    let dampened = &[&line[0..i - 1], &line[i..]].concat();
+                    is_safe(dampened)
+                })
+            })
+            .count(),
+    )
 }
 
 fn is_safe(line: &Vec<i32>) -> bool {
-    let delta: Vec<i32> = line.iter().tuple_windows().map(|(a,b)| a - b).collect();
-    if delta[0] < 0 {
-        if delta.iter().any(|&x| x >= 0) {return false};
-    }else {
-        if delta.iter().any(|&x| x < 0) {return false};
-    }
-    if delta.iter().any(|&x| x.abs()<1 || x.abs()>3) {return false};
-    true
+    let delta: Vec<i32> = line.iter().tuple_windows().map(|(a, b)| a - b).collect();
+    delta.iter().map(|x| x.abs()).all(|x| (1..=3).contains(&x))
+        && (delta.iter().all(|&x| x > 0) || delta.iter().all(|&x| x < 0))
 }
 
 #[cfg(test)]
