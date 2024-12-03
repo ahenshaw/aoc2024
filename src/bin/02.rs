@@ -33,7 +33,7 @@ pub fn part_two(input: &str) -> Option<usize> {
 
 fn is_safe(line: &Vec<i32>) -> bool {
     let delta: Vec<i32> = line.iter().tuple_windows().map(|(a, b)| a - b).collect();
-    delta.iter().map(|x| x.abs()).all(|x| (1..=3).contains(&x))
+    delta.iter().all(|x| (1..=3).contains(&(x.abs())))
         && (delta.iter().all(|&x| x > 0) || delta.iter().all(|&x| x < 0))
 }
 
