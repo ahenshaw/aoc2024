@@ -1,26 +1,24 @@
-
 advent_of_code::solution!(4);
-use advent_of_code::Grid;
+use advent_of_code::{Grid, NEIGHBORS};
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let grid = Grid::from_str(input);
-
-    let dirs: [(isize, isize); 8] = [
-        (1, 0),(1, 1),(0, 1),(-1, 1),(-1, 0),(-1, -1),(0, -1),(1, -1),
-    ];
+    let grid: Grid<char> = input.chars().collect();
     let mut count = 0;
 
-    for row in 0..grid.rows {
-        for col in 0..grid.cols {
-            for (dr, dc) in dirs {
-                let mut cr = row as isize;
-                let mut cc = col as isize;
+    for start_y in 0..grid.height {
+        for start_x in 0..grid.width {
+            for (dx, dy) in NEIGHBORS {
+                let mut x = start_x as isize;
+                let mut y = start_y as isize;
                 for ch in "XMAS".chars() {
-                    let Some(&gc) = grid.get(cr, cc) else {break;};
-                    if gc != ch {break;}
-                    if ch == 'S' {count += 1}
-                    cr += dr;
-                    cc += dc;
+                    if grid.get(x, y) != Some(&ch) {
+                        break;
+                    }
+                    if ch == 'S' {
+                        count += 1
+                    }
+                    x += dx;
+                    y += dy;
                 }
             }
         }
@@ -30,18 +28,26 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let grid = Grid::from_str(input);
+    let grid: Grid<char> = input.chars().collect();
     let mut count = 0;
 
-    for row in 0..grid.rows {
-        for col in 0..grid.cols {
-            let row = row as isize;
-            let col = col as isize;
-            if grid.get(row, col) != Some(&'A') {continue;}
-            let Some(&ul) = grid.get(row - 1, col - 1) else {continue;};
-            let Some(&ur) = grid.get(row - 1, col + 1) else {continue;};
-            let Some(&ll) = grid.get(row + 1, col - 1) else {continue;};
-            let Some(&lr) = grid.get(row + 1, col + 1) else {continue;};
+    for y in 0..grid.height as isize {
+        for x in 0..grid.width as isize {
+            if grid.get(x, y) != Some(&'A') {
+                continue;
+            }
+            let Some(&ul) = grid.northwest(x, y) else {
+                continue;
+            };
+            let Some(&ur) = grid.northeast(x, y) else {
+                continue;
+            };
+            let Some(&ll) = grid.southwest(x, y) else {
+                continue;
+            };
+            let Some(&lr) = grid.southeast(x, y) else {
+                continue;
+            };
             if ((ul == 'M' && lr == 'S') || (ul == 'S' && lr == 'M'))
                 && ((ll == 'M' && ur == 'S') || (ll == 'S' && ur == 'M'))
             {

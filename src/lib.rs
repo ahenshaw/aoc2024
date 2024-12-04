@@ -1,30 +1,112 @@
 use std::collections::HashMap;
 
 pub mod template;
+#[derive(Hash, Debug, Clone, Eq, PartialEq, Default)]
+pub struct Coord {
+    x: isize,
+    y: isize,
+}
 
+#[derive(Debug)]
 pub struct Grid<T> {
-    container: HashMap<(isize, isize), T>,
-    pub rows: usize,
-    pub cols: usize,
+    container: HashMap<Coord, T>,
+    pub height: usize,
+    pub width: usize,
 }
 
 impl Grid<char> {
     pub fn from_str(input: &str) -> Self {
-        let mut container = HashMap::<(isize, isize), char>::new();
+        let mut container = HashMap::<Coord, char>::new();
 
-        let rows = input.lines().count();
-        let cols = input.len() / rows;
+        let height = input.lines().count();
+        let width = input.len() / height;
         for (col, line) in input.lines().enumerate() {
             for (row, ch) in line.chars().enumerate() {
-                container.insert((row as isize, col as isize), ch);
+                container.insert(
+                    Coord {
+                        x: col as isize,
+                        y: row as isize,
+                    },
+                    ch,
+                );
             }
         }
-        Self { container, rows, cols }
+        Self {
+            container,
+            height,
+            width,
+        }
     }
 }
 
-impl <T> Grid<T> {
+impl<T> Grid<T> {
     pub fn get(&self, x: isize, y: isize) -> Option<&T> {
-        self.container.get(&(y, x))
+        self.container.get(&Coord { x, y })
+    }
+    pub fn north(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x, y: y - 1 })
+    }
+    pub fn south(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x, y: y + 1 })
+    }
+    pub fn east(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x: x + 1, y })
+    }
+    pub fn west(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x: x - 1, y })
+    }
+    pub fn northwest(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x: x - 1, y: y - 1 })
+    }
+    pub fn northeast(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x: x + 1, y: y - 1 })
+    }
+    pub fn southwest(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x: x - 1, y: y + 1 })
+    }
+    pub fn southeast(&self, x: isize, y: isize) -> Option<&T> {
+        self.container.get(&Coord { x: x + 1, y: y + 1 })
+    }
+}
+
+pub const NEIGHBORS: [(isize, isize); 8] = [
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (0, -1),
+    (1, -1),
+    (-1, -1),
+    (-1, 1),
+    (-1, 0),
+];
+
+impl FromIterator<char> for Grid<char> {
+    fn from_iter<I: IntoIterator<Item = char>>(iter: I) -> Self {
+        let mut container = HashMap::<Coord, char>::new();
+        let mut x: isize = 0;
+        let mut y: isize = 0;
+        let mut height = 0;
+        let mut width = 0;
+        for ch in iter {
+            match ch {
+                '\r' => (),
+                '\n' => {
+                    y += 1;
+                    x = 0;
+                }
+                _ => {
+                    container.insert(Coord { x, y }, ch);
+                    height = height.max(y as usize + 1);
+                    width = width.max(x as usize + 1);
+                    x += 1;
+                }
+            }
+        }
+
+        Grid {
+            container,
+            height: height,
+            width: width,
+        }
     }
 }
