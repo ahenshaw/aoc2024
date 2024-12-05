@@ -1,8 +1,8 @@
 advent_of_code::solution!(5);
 
-use std::collections::HashSet;
 use aoc_parse::{parser, prelude::*};
 use itertools::Itertools;
+use std::collections::HashSet;
 
 type Rules = HashSet<(u32, u32)>;
 type Pages = Vec<u32>;
@@ -10,23 +10,28 @@ type Pages = Vec<u32>;
 pub fn part_one(input: &str) -> Option<u32> {
     let (rules, production) = parse_input(input);
 
-    Some(production.iter()
-    .filter(|pages| is_valid(&rules, pages))
-    .map(|pages| pages[pages.len()/2])
-    .sum())
+    Some(
+        production
+            .iter()
+            .filter(|pages| is_valid(&rules, pages))
+            .map(|pages| pages[pages.len() / 2])
+            .sum(),
+    )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let (rules, production) = parse_input(input);
 
-    Some(production.iter()
-    .filter(|pages| !is_valid(&rules, pages))
-    .map(|pages| {
-        let fixed = fix_order(&rules, &pages);
-        fixed[fixed.len()/2]
-    })
-    .sum())
-
+    Some(
+        production
+            .iter()
+            .filter(|pages| !is_valid(&rules, pages))
+            .map(|pages| {
+                let fixed = fix_order(&rules, &pages);
+                fixed[fixed.len() / 2]
+            })
+            .sum(),
+    )
 }
 
 fn parse_input(input: &str) -> (Rules, Vec<Pages>) {
@@ -40,23 +45,25 @@ fn parse_input(input: &str) -> (Rules, Vec<Pages>) {
 }
 
 fn is_valid(rules: &Rules, pages: &Pages) -> bool {
-    pages.iter().tuple_combinations().all(|(a, b)| rules.contains(&(*a, *b)))
+    pages
+        .iter()
+        .tuple_combinations()
+        .all(|(a, b)| rules.contains(&(*a, *b)))
 }
 
 fn fix_order(rules: &Rules, pages: &Pages) -> Pages {
     let mut pages = pages.clone();
 
-    loop{
+    loop {
         for (i, j) in (0..pages.len()).tuple_combinations() {
             if !rules.contains(&(pages[i], pages[j])) {
                 pages.swap(i, j);
             }
         }
         if is_valid(rules, &pages) {
-            break;
+            return pages;
         }
     }
-    pages
 }
 
 #[cfg(test)]
