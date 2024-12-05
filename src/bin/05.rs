@@ -23,7 +23,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(production.iter()
     .filter(|pages| !is_valid(&rules, pages))
     .map(|pages| {
-        let fixed = fix(&rules, &pages);
+        let fixed = fix_order(&rules, &pages);
         fixed[fixed.len()/2]
     })
     .sum())
@@ -41,22 +41,16 @@ fn parse_input(input: &str) -> (Rules, Vec<Pages>) {
 }
 
 fn is_valid(rules: &Rules, pages: &Pages) -> bool {
-    pages.iter().combinations(2).all(|pair| rules.contains(&(*pair[0], *pair[1])))
+    pages.iter().tuple_combinations().all(|(a, b)| rules.contains(&(*a, *b)))
 }
 
-fn fix(rules: &Rules, pages: &Pages) -> Pages {
+fn fix_order(rules: &Rules, pages: &Pages) -> Pages {
     let mut pages = pages.clone();
 
     loop{
-        'inner:for i in 0..pages.len()-1 {
-            for j in i+1..pages.len() {
-                let p1 = pages[i];
-                let p2 = pages[j];
-                if rules.contains(&(p2, p1))  {
-                    pages[j] = p1;
-                    pages[i] = p2;
-                    break 'inner;
-                }
+        for (i, j) in (0..pages.len()).tuple_combinations() {
+            if !rules.contains(&(pages[i], pages[j])) {
+                pages.swap(i, j);
             }
         }
         if is_valid(rules, &pages) {
