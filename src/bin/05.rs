@@ -2,7 +2,7 @@ advent_of_code::solution!(5);
 
 use aoc_parse::{parser, prelude::*};
 use itertools::Itertools;
-use std::collections::HashSet;
+use std::{cmp::Ordering, collections::HashSet};
 
 type Rules = HashSet<(u32, u32)>;
 type Pages = Vec<u32>;
@@ -27,7 +27,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             .iter()
             .filter(|pages| !is_valid(&rules, pages))
             .map(|pages| {
-                let fixed = fix_order(&rules, &pages);
+                let fixed = reorder(&rules, &pages);
                 fixed[fixed.len() / 2]
             })
             .sum(),
@@ -51,19 +51,16 @@ fn is_valid(rules: &Rules, pages: &Pages) -> bool {
         .all(|(a, b)| rules.contains(&(*a, *b)))
 }
 
-fn fix_order(rules: &Rules, pages: &Pages) -> Pages {
+fn reorder(rules: &Rules, pages: &Pages) -> Pages {
     let mut pages = pages.clone();
 
-    loop {
-        for (i, j) in (0..pages.len()).tuple_combinations() {
-            if !rules.contains(&(pages[i], pages[j])) {
-                pages.swap(i, j);
-            }
+    pages.sort_by(|a, b| {
+        if rules.contains(&(*b, *a)) {
+            return Ordering::Greater;
         }
-        if is_valid(rules, &pages) {
-            return pages;
-        }
-    }
+        Ordering::Less
+    });
+    pages
 }
 
 #[cfg(test)]
