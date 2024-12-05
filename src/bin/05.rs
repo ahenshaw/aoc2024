@@ -1,9 +1,8 @@
-use std::collections::HashSet;
+advent_of_code::solution!(5);
 
+use std::collections::HashSet;
 use aoc_parse::{parser, prelude::*};
 use itertools::Itertools;
-
-advent_of_code::solution!(5);
 
 type Rules = HashSet<(u32, u32)>;
 type Pages = Vec<u32>;
