@@ -35,16 +35,16 @@ fn eval(target: u64, total: u64, operands: &[u64], operators: &[char]) -> bool {
 pub fn part_one(input: &str) -> Option<u64> {
     Some(parse_input(input)
     .par_iter()
-    .filter(|(test, operands)| eval(*test, operands[0], &operands[1..], &['+', '*']))
-    .map(|(test,_)| test)
+    .filter(|(target, operands)| eval(*target, operands[0], &operands[1..], &['+', '*']))
+    .map(|(target,_)| target)
     .sum())
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
     Some(parse_input(input)
     .par_iter()
-    .filter(|(test, operands)| eval(*test, operands[0], &operands[1..], &['+', '*', '|']))
-    .map(|(test,_)| test)
+    .filter(|(target, operands)| eval(*target, operands[0], &operands[1..], &['+', '*', '|']))
+    .map(|(target,_)| target)
     .sum())
 }
 
