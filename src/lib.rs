@@ -3,13 +3,13 @@ use std::collections::HashMap;
 pub mod template;
 #[derive(Hash, Debug, Clone, Eq, PartialEq, Default)]
 pub struct Coord {
-    x: isize,
-    y: isize,
+    pub x: isize,
+    pub y: isize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Grid<T> {
-    container: HashMap<Coord, T>,
+    pub container: HashMap<Coord, T>,
     pub height: usize,
     pub width: usize,
 }
