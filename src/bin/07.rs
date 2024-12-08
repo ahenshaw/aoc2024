@@ -20,7 +20,7 @@ fn eval(target: u64, total: u64, operands: &[u64], operators: &[char]) -> bool {
             '|' => format!("{total}{operand}").parse().unwrap(),
             _ => unreachable!()
         };
-        if total > target {return false}
+        if new_total > target {return false}
         if operands.len() > 1 {
             if eval(target, new_total, &operands[1..], operators) {
                 return true;
