@@ -67,6 +67,11 @@ impl<T> Grid<T> {
     pub fn southeast(&self, x: isize, y: isize) -> Option<&T> {
         self.container.get(&Coord { x: x + 1, y: y + 1 })
     }
+
+    pub fn is_in(&self, x: isize, y: isize) -> bool {
+        (0..self.width as isize).contains(&x)
+        && (0..self.height as isize).contains(&y)
+    }
 }
 
 pub const NEIGHBORS: [(isize, isize); 8] = [
