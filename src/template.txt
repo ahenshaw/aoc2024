@@ -1,21 +1,24 @@
-use aoc_parse::{parser, prelude::*};
-use itertools::Itertools;
-
+#![allow(unused_variables)]
 advent_of_code::solution!(%DAY_NUMBER%);
 
+// use aoc_parse::{parser, prelude::*};
+// use itertools::Itertools;
+
+
 pub fn part_one(input: &str) -> Option<u32> {
-    let p = parser!(lines(repeat_sep(i32, " ")));
-    let Ok(lines) = p.parse(input) else {
-        return None;
-    };
+    // let p = parser!(lines(repeat_sep(i32, " ")));
+    // let Ok(lines) = p.parse(input) else {
+    //     return None;
+    // };
+
     None
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let p = parser!(lines(repeat_sep(i32, " ")));
-    let Ok(lines) = p.parse(input) else {
-        return None;
-    };
+    // let p = parser!(lines(repeat_sep(i32, " ")));
+    // let Ok(lines) = p.parse(input) else {
+    //     return None;
+    // };
 
     None
 }

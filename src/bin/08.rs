@@ -1,23 +1,21 @@
-use std::collections::{HashMap, HashSet};
+advent_of_code::solution!(8);
 
-// use aoc_parse::{parser, prelude::*};
+use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
 use advent_of_code::{Grid, Coord};
-
-advent_of_code::solution!(8);
 
 
 pub fn part_one(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
     let mut antinodes = HashSet::<Coord>::new();
-    let mut antennas = HashMap::<char, Vec<(isize, isize)>>::new();
+    let mut antennas = HashMap::<char, Vec<Coord>>::new();
 
     for y in 0..grid.height as isize {
         for x in 0..grid.width as isize {
             match grid.get(x, y) {
                 Some('.') => (),
                 Some(ch) => {
-                    antennas.entry(*ch).or_insert_with(Vec::new).push((x, y));
+                    antennas.entry(*ch).or_insert_with(Vec::new).push(Coord{x, y});
                 },
                 None => unreachable!(),
             }
@@ -25,16 +23,16 @@ pub fn part_one(input: &str) -> Option<usize> {
     }
     for (_, coords) in antennas {
         for (a, b) in coords.iter().tuple_combinations() {
-            let dx = a.0 - b.0;
-            let dy = a.1 - b.1;
+            let dx = a.x - b.x;
+            let dy = a.y - b.y;
 
-            let x = a.0 + dx;
-            let y = a.1 + dy;
+            let x = a.x + dx;
+            let y = a.y + dy;
             if grid.is_in(x, y){
                 antinodes.insert(Coord{x, y});
             }
-            let x = b.0 - dx;
-            let y = b.1 - dy;
+            let x = b.x - dx;
+            let y = b.y - dy;
             if grid.is_in(x, y){
                 antinodes.insert(Coord{x, y});
             }
@@ -46,14 +44,14 @@ pub fn part_one(input: &str) -> Option<usize> {
 pub fn part_two(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
     let mut antinodes = HashSet::<Coord>::new();
-    let mut antennas = HashMap::<char, Vec<(isize, isize)>>::new();
+    let mut antennas = HashMap::<char, Vec<Coord>>::new();
 
     for y in 0..grid.height as isize {
         for x in 0..grid.width as isize {
             match grid.get(x, y) {
                 Some('.') => (),
                 Some(ch) => {
-                    antennas.entry(*ch).or_insert_with(Vec::new).push((x, y));
+                    antennas.entry(*ch).or_insert_with(Vec::new).push(Coord{x, y});
                 },
                 None => unreachable!(),
             }
@@ -61,11 +59,11 @@ pub fn part_two(input: &str) -> Option<usize> {
     }
     for (_, coords) in antennas {
         for (a, b) in coords.iter().tuple_combinations() {
-            let dx = a.0 - b.0;
-            let dy = a.1 - b.1;
+            let dx = a.x - b.x;
+            let dy = a.y - b.y;
             for dir in [-1, 1] {
-                let mut x = a.0;
-                let mut y = a.1;
+                let mut x = a.x;
+                let mut y = a.y;
                 while grid.is_in(x, y) {
                     antinodes.insert(Coord{x, y});
                     x += dir * dx;
