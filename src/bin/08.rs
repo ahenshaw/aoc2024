@@ -1,24 +1,18 @@
 advent_of_code::solution!(8);
 
-use std::collections::{HashMap, HashSet};
+use advent_of_code::{Coord, Grid};
 use itertools::Itertools;
-use advent_of_code::{Grid, Coord};
-
+use std::collections::{HashMap, HashSet};
 
 pub fn part_one(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
     let mut antinodes = HashSet::<Coord>::new();
     let mut antennas = HashMap::<char, Vec<Coord>>::new();
 
-    for y in 0..grid.height as isize {
-        for x in 0..grid.width as isize {
-            match grid.get(x, y) {
-                Some('.') => (),
-                Some(ch) => {
-                    antennas.entry(*ch).or_insert_with(Vec::new).push(Coord{x, y});
-                },
-                None => unreachable!(),
-            }
+    for (here, ch) in grid.iter() {
+        match ch {
+            '.' => (),
+            _ => antennas.entry(ch).or_insert_with(Vec::new).push(here),
         }
     }
     for (_, coords) in antennas {
@@ -28,13 +22,13 @@ pub fn part_one(input: &str) -> Option<usize> {
 
             let x = a.x + dx;
             let y = a.y + dy;
-            if grid.is_in(x, y){
-                antinodes.insert(Coord{x, y});
+            if grid.is_in(x, y) {
+                antinodes.insert(Coord { x, y });
             }
             let x = b.x - dx;
             let y = b.y - dy;
-            if grid.is_in(x, y){
-                antinodes.insert(Coord{x, y});
+            if grid.is_in(x, y) {
+                antinodes.insert(Coord { x, y });
             }
         }
     }
@@ -46,15 +40,10 @@ pub fn part_two(input: &str) -> Option<usize> {
     let mut antinodes = HashSet::<Coord>::new();
     let mut antennas = HashMap::<char, Vec<Coord>>::new();
 
-    for y in 0..grid.height as isize {
-        for x in 0..grid.width as isize {
-            match grid.get(x, y) {
-                Some('.') => (),
-                Some(ch) => {
-                    antennas.entry(*ch).or_insert_with(Vec::new).push(Coord{x, y});
-                },
-                None => unreachable!(),
-            }
+    for (here, ch) in grid.iter() {
+        match ch {
+            '.' => (),
+            _ => antennas.entry(ch).or_insert_with(Vec::new).push(here),
         }
     }
     for (_, coords) in antennas {
@@ -65,7 +54,7 @@ pub fn part_two(input: &str) -> Option<usize> {
                 let mut x = a.x;
                 let mut y = a.y;
                 while grid.is_in(x, y) {
-                    antinodes.insert(Coord{x, y});
+                    antinodes.insert(Coord { x, y });
                     x += dir * dx;
                     y += dir * dy;
                 }
