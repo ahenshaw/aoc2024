@@ -2,21 +2,23 @@ use std::collections::HashSet;
 
 // use aoc_parse::{parser, prelude::*};
 // use itertools::Itertools;
-use advent_of_code::{Grid, Coord};
+use advent_of_code::{Coord, Grid};
 
 advent_of_code::solution!(6);
 
 pub fn part_one(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
-    let index = input.find(|c: char| ['^', '>', '<', 'v'].contains(&c)).unwrap();
-    let y =  (index / (grid.width +1)) as isize;
+    let index = input
+        .find(|c: char| ['^', '>', '<', 'v'].contains(&c))
+        .unwrap();
+    let y = (index / (grid.width + 1)) as isize;
     let x = (index % (grid.width + 1)) as isize;
-    let (dx, dy) = match grid.get(x, y).unwrap() {
+    let (dx, dy) = match grid.get_xy(x, y).unwrap() {
         '^' => (0, -1),
         '>' => (1, 0),
         'v' => (0, 1),
         '<' => (-1, 0),
-        _ => unreachable!()
+        _ => unreachable!(),
     };
 
     // loop {
@@ -45,18 +47,17 @@ pub fn part_one(input: &str) -> Option<usize> {
 
 fn rotate(dx: isize, dy: isize) -> (isize, isize) {
     match (dx, dy) {
-        (0, -1) => (1,0),
+        (0, -1) => (1, 0),
         (1, 0) => (0, 1),
         (0, 1) => (-1, 0),
         (-1, 0) => (0, -1),
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
 enum Outcome {
     Exited(Vec<(isize, isize)>),
     Looping,
-
 }
 
 fn patrol(grid: &Grid<char>, sx: isize, sy: isize, dx: isize, dy: isize) -> Outcome {
@@ -69,9 +70,10 @@ fn patrol(grid: &Grid<char>, sx: isize, sy: isize, dx: isize, dy: isize) -> Outc
 
     loop {
         visited.insert((x, y, dx, dy));
-        match grid.get(x + dx, y + dy) {
+        match grid.get_xy(x + dx, y + dy) {
             None => {
-                let cells: HashSet<(isize, isize)> = visited.iter().map(|(x, y, _, _)| (*x, *y)).collect();
+                let cells: HashSet<(isize, isize)> =
+                    visited.iter().map(|(x, y, _, _)| (*x, *y)).collect();
                 return Outcome::Exited(cells.iter().map(|(x, y)| (*x, *y)).collect());
             }
             Some('#') => {
@@ -79,37 +81,42 @@ fn patrol(grid: &Grid<char>, sx: isize, sy: isize, dx: isize, dy: isize) -> Outc
                 if visited.contains(&(x, y, dx, dy)) {
                     return Outcome::Looping;
                 }
-                    },
-            _ => {x += dx; y += dy;}
-
+            }
+            _ => {
+                x += dx;
+                y += dy;
+            }
         }
     }
-
 }
 pub fn part_two(input: &str) -> Option<usize> {
     let mut grid: Grid<char> = input.chars().collect();
-    let index = input.find(|c: char| ['^', '>', '<', 'v'].contains(&c)).unwrap();
-    let sy =  (index / (grid.width +1)) as isize;
+    let index = input
+        .find(|c: char| ['^', '>', '<', 'v'].contains(&c))
+        .unwrap();
+    let sy = (index / (grid.width + 1)) as isize;
     let sx = (index % (grid.width + 1)) as isize;
-    let (dx, dy) = match grid.get(sx, sy).unwrap() {
+    let (dx, dy) = match grid.get_xy(sx, sy).unwrap() {
         '^' => (0, -1),
         '>' => (1, 0),
         'v' => (0, 1),
         '<' => (-1, 0),
-        _ => unreachable!()
+        _ => unreachable!(),
     };
     let mut count = 0;
 
-    let Outcome::Exited(visited) = patrol(&grid, sx, sy, dx, dy) else {return None};
+    let Outcome::Exited(visited) = patrol(&grid, sx, sy, dx, dy) else {
+        return None;
+    };
 
     for (x, y) in visited {
         if x != sx || y != sy {
-            grid.container.insert(Coord{x, y}, '#');
+            grid.container.insert(Coord { x, y }, '#');
             match patrol(&grid, sx, sy, dx, dy) {
                 Outcome::Exited(_) => (),
                 Outcome::Looping => count += 1,
             }
-            grid.container.insert(Coord{x, y}, '.');
+            grid.container.insert(Coord { x, y }, '.');
         }
     }
     Some(count)

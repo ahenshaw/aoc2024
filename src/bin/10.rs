@@ -3,70 +3,59 @@ advent_of_code::solution!(10);
 
 use std::collections::HashSet;
 
-// use aoc_parse::{parser, prelude::*};
-// use itertools::Itertools;
-use advent_of_code::Grid;
+use advent_of_code::{Coord, Grid, CARDINAL};
 
-fn search(grid: &Grid<char>, x: isize, y: isize, val: char, level: usize, paths:&mut HashSet<(isize, isize)>)  {
-    for (dx, dy) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
-        let x = x + dx;
-        let y = y + dy;
-        if let Some(&ch) = grid.get(x, y) {
+fn search(grid: &Grid<char>, here: Coord, val: char, dests: &mut HashSet<Coord>) {
+    for dir in CARDINAL {
+        let check = here.clone() + dir;
+        if let Some(&ch) = grid.get(&check) {
             if ch as i8 - val as i8 == 1 {
                 if ch == '9' {
-                    paths.insert((x, y));
+                    dests.insert(check);
                     continue;
                 } else {
-                    search(grid, x, y, ch, level + 1, paths);
+                    search(grid, check, ch, dests);
                 }
             }
         }
     }
-
 }
 
-fn search2(grid: &Grid<char>, x: isize, y: isize, val: char, level: usize, paths:&mut usize)  {
-    for (dx, dy) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
-        let x = x + dx;
-        let y = y + dy;
-        if let Some(&ch) = grid.get(x, y) {
+fn search2(grid: &Grid<char>, here: Coord, val: char, paths: &mut usize) {
+    for dir in CARDINAL {
+        let check = here.clone() + dir;
+        if let Some(&ch) = grid.get(&check) {
             if ch as i8 - val as i8 == 1 {
                 if ch == '9' {
                     *paths += 1;
                     continue;
                 } else {
-                    search2(grid, x, y, ch, level + 1, paths);
+                    search2(grid, check, ch, paths);
                 }
             }
         }
     }
-
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
     let mut total = 0;
-    for y in 0..grid.height as isize {
-        for x in 0..grid.width as isize{
-            if grid.get(x, y) == Some(&'0') {
-                let mut paths: HashSet<(isize, isize)> = HashSet::new();
-                search(&grid, x, y, '0', 0, &mut paths);
-                total += paths.len();
-            }
+    for (here, ch) in grid.iter() {
+        if ch == '0' {
+            let mut dests = HashSet::<Coord>::new();
+            search(&grid, here, '0', &mut dests);
+            total += dests.len();
         }
     }
-
     Some(total)
 }
 
 pub fn part_two(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
     let mut total = 0;
-    for y in 0..grid.height as isize {
-        for x in 0..grid.width as isize{
-            if grid.get(x, y) == Some(&'0') {
-                search2(&grid, x, y, '0', 0, &mut total);
-            }
+    for (here, ch) in grid.iter() {
+        if ch == '0' {
+            search2(&grid, here, '0', &mut total);
         }
     }
 

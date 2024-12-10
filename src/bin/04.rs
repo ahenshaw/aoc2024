@@ -11,7 +11,7 @@ pub fn part_one(input: &str) -> Option<u32> {
                 let mut x = start_x as isize;
                 let mut y = start_y as isize;
                 for ch in "XMAS".chars() {
-                    if grid.get(x, y) != Some(&ch) {
+                    if grid.get_xy(x, y) != Some(&ch) {
                         break;
                     }
                     if ch == 'S' {
@@ -33,7 +33,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     for y in 0..grid.height as isize {
         for x in 0..grid.width as isize {
-            if grid.get(x, y) != Some(&'A') {
+            if grid.get_xy(x, y) != Some(&'A') {
                 continue;
             }
             let Some(&ul) = grid.northwest(x, y) else {
