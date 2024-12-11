@@ -3,13 +3,14 @@ advent_of_code::solution!(%DAY_NUMBER%);
 
 // use aoc_parse::{parser, prelude::*};
 // use itertools::Itertools;
-
+// use advent_of_code::{Coord, Grid, CARDINAL};
 
 pub fn part_one(input: &str) -> Option<u32> {
     // let p = parser!(lines(repeat_sep(i32, " ")));
     // let Ok(lines) = p.parse(input) else {
     //     return None;
     // };
+    // let grid: Grid<char> = input.chars().collect();
 
     None
 }
@@ -19,6 +20,8 @@ pub fn part_two(input: &str) -> Option<u32> {
     // let Ok(lines) = p.parse(input) else {
     //     return None;
     // };
+    // let grid: Grid<char> = input.chars().collect();
+
 
     None
 }
