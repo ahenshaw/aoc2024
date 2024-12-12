@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::ops::Add;
 
 pub mod template;
-#[derive(Hash, Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Default)]
+#[derive(Hash, Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Default, Copy)]
 pub struct Coord {
     pub x: isize,
     pub y: isize,
@@ -47,7 +47,6 @@ pub const COMPASS: [Direction; 8] = [
     Direction::Southwest,
 ];
 
-
 impl Direction {
     fn to_delta(&self) -> (isize, isize) {
         match self {
@@ -59,6 +58,26 @@ impl Direction {
             Self::Northwest => (-1, -1),
             Self::Southeast => (1, 1),
             Self::Southwest => (-1, 1),
+        }
+    }
+    pub fn orthogonal(&self) -> [Direction; 2] {
+        use Direction::*;
+        match self {
+            North | South => [East, West],
+            East | West => [North, South],
+            Northeast | Southwest => [Northwest, Southeast],
+            Northwest | Southeast => [Northeast, Southwest],
+        }
+    }
+
+    pub fn rot90(&self) -> Direction {
+        use Direction::*;
+        match self {
+            North => East,
+            East => South,
+            South => West,
+            West => North,
+            _ => unreachable!(),
         }
     }
 }
