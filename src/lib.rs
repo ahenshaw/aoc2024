@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::ops::Add;
 
 pub mod template;
-#[derive(Hash, Debug, Clone, Eq, PartialEq, Default)]
+#[derive(Hash, Debug, Clone, Eq, PartialEq, PartialOrd, Ord, Default)]
 pub struct Coord {
     pub x: isize,
     pub y: isize,
@@ -18,6 +18,7 @@ impl Add<Direction> for Coord {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum Direction {
     North,
     South,
@@ -30,10 +31,22 @@ pub enum Direction {
 }
 pub const CARDINAL: [Direction; 4] = [
     Direction::North,
+    Direction::East,
+    Direction::South,
+    Direction::West,
+];
+
+pub const COMPASS: [Direction; 8] = [
+    Direction::North,
     Direction::South,
     Direction::East,
     Direction::West,
+    Direction::Northeast,
+    Direction::Northwest,
+    Direction::Southeast,
+    Direction::Southwest,
 ];
+
 
 impl Direction {
     fn to_delta(&self) -> (isize, isize) {
