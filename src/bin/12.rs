@@ -3,8 +3,6 @@ advent_of_code::solution!(12);
 
 use std::collections::HashSet;
 
-// use aoc_parse::{parser, prelude::*};
-// use itertools::Itertools;
 use advent_of_code::{Coord, Direction, Grid, CARDINAL, COMPASS};
 
 pub fn part_one(input: &str) -> Option<u64> {
@@ -66,61 +64,22 @@ fn get_perimeter(region: &HashSet<Coord>) -> u64 {
     perimeter
 }
 
-fn get_sides(region: &HashSet<Coord>) -> u64 {
-    let mut sides = 0;
-    println!("region: {region:?}");
 
-    if region.len() == 1 {
-        return 4;
-    }
+fn get_sides(r: &HashSet<Coord>) -> u64 {
+    use Direction::*;
+    let sides: usize = r.iter().map(|&pt| {
+        CARDINAL.iter().filter(|&dir| r.contains(&(pt.clone()+dir.clone()))).count()
 
-    let mut inflated = HashSet::<Coord>::new();
-    for pt in region {
-        inflated.insert(pt.clone());
-        for dir in COMPASS {
-            inflated.insert(pt.clone() + dir);
-        }
-    }
-    let outline: HashSet<&Coord> = inflated.difference(region).collect();
-    println!("outline: {outline:?}");
-
-    let test = *(outline.iter().next().unwrap());
-    let mut dir = CARDINAL
-        .iter()
-        .find(|&d| outline.contains(&(test.clone() + d.clone())))
-        .unwrap()
-        .clone();
-    let start = test.clone() + dir.clone();
-    let mut cursor = start.clone();
-    println!("start: {start:?}   dir: {dir:?}");
-    loop {
-        println!("    cursor: {cursor:?}  sides: {sides}");
-        if !outline.contains(&(cursor + dir.clone())) {
-            dir = dir
-                .orthogonal()
-                .iter()
-                .find(|&d| outline.contains(&(cursor.clone() + d.clone())))
-                .unwrap()
-                .clone();
-            sides += 1;
-            if sides > 100 {
-                break;
-            }
-        }
-        cursor = cursor + dir.clone();
-        if cursor == start {
-            break;
-        }
-    }
-
-    // let mut dir = Direction::East;
-    sides
+    }).sum();
+    println!("{} {sides}", r.len());
+    sides as u64
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
     let grid: Grid<char> = input.chars().collect();
     let mut assigned = HashSet::<Coord>::new();
     let mut regions: Vec<HashSet<Coord>> = vec![];
+    let mut plants: Vec<char> = vec![];
     for (pt, plant) in grid.iter() {
         if assigned.contains(&pt) {
             continue;
@@ -129,10 +88,10 @@ pub fn part_two(input: &str) -> Option<u64> {
         let mut region = HashSet::<Coord>::new();
         get_region(&grid, &mut assigned, &pt, plant, &mut region);
         regions.push(region);
+        plants.push(plant);
     }
-    regions.first().map(|r| get_sides(r));
-    // Some(regions.iter().map(|r| get_sides(r) * r.len() as u64).sum())
-    None
+    println!("{plants:?}");
+    Some(regions.iter().map(|r| get_sides(r) * r.len() as u64).sum())
 }
 
 #[cfg(test)]
@@ -149,6 +108,6 @@ mod tests {
     fn test_part_two() {
         // let result = part_two(&advent_of_code::template::read_file_part("examples", DAY, 2));
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, Some(80));
+        assert_eq!(result, Some(1206));
     }
 }
