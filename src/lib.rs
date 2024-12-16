@@ -122,6 +122,16 @@ impl Grid<char> {
 }
 
 impl Grid<char> {
+    pub fn new(width: usize, height: usize, fill: char) -> Self {
+        let mut container = HashMap::<Coord, char>::new();
+        for y in 0..height as isize {
+            for x in 0..width as isize {
+                container.insert(Coord{x, y}, fill);
+            }
+        }
+        Self{container, height, width}
+    }
+
     pub fn from_str(input: &str) -> Self {
         let mut container = HashMap::<Coord, char>::new();
 
@@ -222,5 +232,18 @@ impl FromIterator<char> for Grid<char> {
             height: height,
             width: width,
         }
+    }
+}
+
+use std::fmt;
+impl fmt::Display for Grid<char> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (i, (_, ch)) in self.iter().enumerate() {
+            write!(f, "{ch}")?;
+            if i > 0 && (i + 1) % self.width == 0 {
+                writeln!(f)?
+            }
+        }
+        Ok(())
     }
 }
