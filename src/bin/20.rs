@@ -1,21 +1,20 @@
 #![allow(unused_variables)]
 advent_of_code::solution!(20);
 
-use std::path;
-
 use advent_of_code::{Coord, Grid, CARDINAL};
 use petgraph::algo::astar;
 use petgraph::data::Build;
 use petgraph::graphmap::GraphMap;
-use petgraph::visit::EdgeRef;
-use petgraph::Undirected;
+use petgraph::visit::{EdgeRef, IntoEdgeReferences};
+use petgraph::Directed;
 
-pub fn part_one(input: &str) -> Option<u32> {
+const MAX_WEIGHT:u64 = 10000000;
+pub fn part_one(input: &str) -> Option<usize> {
     let grid: Grid<char> = input.chars().collect();
 
     let (start, _) = grid.iter().find(|(_, ch)| *ch == 'S').unwrap();
     let (end, _) = grid.iter().find(|(_, ch)| *ch == 'E').unwrap();
-    let mut graph = GraphMap::<Coord, u64, Undirected>::new();
+    let mut graph = GraphMap::<Coord, u64, Directed>::new();
     for (pos, _) in grid.iter() {
         graph.add_node(pos);
     }
@@ -23,23 +22,16 @@ pub fn part_one(input: &str) -> Option<u32> {
         for dir in CARDINAL {
             let pos_b = pos_a + dir;
             if let Some(ch_b) = grid.get(&pos_b) {
-                let weight = match (ch_a, ch_b) {
-                    ('#', _) => 10000000,
-                    (_, '#') => 10000000,
+                let weight = match ch_b {
+                    '#' => MAX_WEIGHT,
                     _ => 1,
                 };
                 graph.add_edge(pos_a, pos_b, weight);
             }
         }
     }
-    graph.update_edge(Coord{x:8, y:7}, Coord{x:8, y:8}, 1);
-    graph.update_edge(Coord{x:8, y:8}, Coord{x:8, y:9}, 1);
-    // dbg!(graph.edge_weight(Coord{x:8, y:8}, Coord{x:8, y:9}));
-    if let Some((cost, _)) = astar(&graph, start, |n|n==end, |e| *e.weight(), |_| 0) {
-        dbg!(cost);
-
-    }
-    None
+    let savings = cheat(graph, start, end);
+    Some(savings.iter().filter(|&x| *x >= 100).count())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -53,6 +45,27 @@ pub fn part_two(input: &str) -> Option<u32> {
     None
 }
 
+fn cheat(graph: GraphMap<Coord, u64, Directed>, start: Coord, end: Coord) -> Vec<u64>{
+    let  (base, _) = astar(&graph, start, |n|n==end, |e| *e.weight(), |_| 0).unwrap();
+    println!("Base: {base}");
+    let mut savings = vec![];
+    let mut changed = graph.clone();
+    for edge in graph.edge_references() {
+        if *edge.weight() == MAX_WEIGHT {
+            let src = edge.source();
+            let tgt = edge.target();
+            changed.update_edge(src, tgt, 1);
+            let (cost, _) = astar(&changed, start, |n|n==end, |e| *e.weight(), |_| 0).unwrap();
+            changed.update_edge(src, tgt, MAX_WEIGHT);
+            if cost < base {
+                // println!("{} {:?}->{:?}", base - cost, src, tgt);
+                savings.push(base - cost);
+            }
+        }
+    }
+    savings
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -60,7 +73,7 @@ mod tests {
     #[test]
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(0));
     }
 
     #[test]
